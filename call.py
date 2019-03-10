@@ -30,7 +30,7 @@ if args.event == None:
   print('event is required')
   sys.exit()
 
-print(f'file is: {args.file}\nurl is: {args.url}\nevent is: {args.event}')
+#print(f'file is: {args.file}\nurl is: {args.url}\nevent is: {args.event}')
 
 event = args.event
 file = args.file
@@ -39,17 +39,21 @@ base_url = args.url
 url_to_call_base = base_url + '/admin/api/check-in/event/' + event + '/ticket/'
 
 
-def call_check_in(ticket_data):
+def call_check_in(ticket_data, token):
   ticket_id = ticket_data.split('/')[0]
   url_to_call = url_to_call_base + ticket_id
-  res = requests.post(url_to_call, json = {"code": ticket_data})
-  print(res.text)
+  print("curl -b cookiefile -H \"Content-Type: application/json\" -H \"X-XSRF-TOKEN: ${CSRF}\" -X POST --data '{\"code\": \""+ticket_data+"\"}' "+url_to_call)
+  print("sleep 1")
+  #res = requests.post(url_to_call, json = {"code": ticket_data}, headers = {"XSRF-TOKEN": token})
+  #print(res.text)
 
 
 with open(file, "r") as ins:
+  print("curl -c cookiefile "+base_url+"/api/internal/system/cluster/me")
+  print("CSRF=`cat cookiefile | grep XSRF | awk -F' ' '{ print $NF}'`")
   for line in ins:
-    call_check_in(line.strip())
-    sleep(1) #sleep 1s
+    call_check_in(line.strip(), None)
+    #sleep(1) #sleep 1s
 
 
 
